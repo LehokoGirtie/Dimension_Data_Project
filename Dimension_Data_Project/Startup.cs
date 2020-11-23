@@ -30,8 +30,19 @@ namespace Dimension_Data_Project
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddDefaultUI()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthorization(options => {
+                options.AddPolicy("readonlypolicy",
+                    builder => builder.RequireRole("Admin", "Manager", "Employee"));
+                options.AddPolicy("writepolicy",
+                    builder => builder.RequireRole("Admin", "Manager"));
+                options.AddPolicy("usermanagepolicy",
+                    builder => builder.RequireRole("Admin"));
+            });
             services.AddControllersWithViews();
             services.AddDbContext<DimensionDataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddRazorPages();
